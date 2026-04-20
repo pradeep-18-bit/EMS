@@ -1,6 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using EmployeeManagementSystem.Data;
+using EmployeeManagementSystem.Helpers;
 using EmployeeManagementSystem.Interfaces;
 using EmployeeManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;
@@ -269,19 +270,7 @@ namespace EmployeeManagementSystem.Services
         //--------------------------------
         private void ConvertDocxToPdf(string docxPath, string pdfPath)
         {
-            var sofficePath = @"C:\Program Files\LibreOffice\program\soffice.exe";
-
-            var process = new Process();
-
-            process.StartInfo.FileName = sofficePath;
-            process.StartInfo.Arguments =
-                $"--headless --convert-to pdf --outdir \"{Path.GetDirectoryName(pdfPath)}\" \"{docxPath}\"";
-
-            process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.UseShellExecute = false;
-
-            process.Start();
-            process.WaitForExit();
+            LibreOfficeHelper.ConvertToPdf(docxPath, pdfPath);
         }
 
         //--------------------------------

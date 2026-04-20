@@ -9465,11 +9465,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\ADMIN\\Downloads\\EMS Git\\EmployeeManagementSystem (18)\\EmployeeManagementSystem\\EmployeeManagementSystem\\EmployeeManagementSystem.csproj",
+      "projectUniqueName": "C:\\Users\\Pradeep\\EMS\\backend\\EmployeeManagementSystem\\EmployeeManagementSystem.csproj",
       "projectName": "EmployeeManagementSystem",
-      "projectPath": "C:\\Users\\ADMIN\\Downloads\\EMS Git\\EmployeeManagementSystem (18)\\EmployeeManagementSystem\\EmployeeManagementSystem\\EmployeeManagementSystem.csproj",
+      "projectPath": "C:\\Users\\Pradeep\\EMS\\backend\\EmployeeManagementSystem\\EmployeeManagementSystem.csproj",
       "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\ADMIN\\Downloads\\EMS Git\\EmployeeManagementSystem (18)\\EmployeeManagementSystem\\EmployeeManagementSystem\\obj\\",
+      "outputPath": "C:\\Users\\Pradeep\\EMS\\backend\\EmployeeManagementSystem\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -9598,11 +9598,21 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
       }
     }
   },
   "logs": [
+    {
+      "code": "NU1902",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Package 'MailKit' 4.15.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-9j88-vvj5-vhgr",
+      "libraryId": "MailKit",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    },
     {
       "code": "NU1701",
       "level": "Warning",

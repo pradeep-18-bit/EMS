@@ -1,0 +1,13 @@
+**/bin
+**/obj
+.env
+.env.*
+.git
+.vs
+.vscode
+.idea
+TestResults
+*.user
+*.suo
+*.cache
+.DS_Store

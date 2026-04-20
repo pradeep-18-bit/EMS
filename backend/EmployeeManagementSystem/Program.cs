@@ -4,6 +4,7 @@ using EmployeeManagementSystem.Helpers;
 using EmployeeManagementSystem.Interfaces;
 using EmployeeManagementSystem.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -48,23 +49,43 @@ builder.Services.AddScoped<ExperienceOfferLetterService>();
 builder.Services.AddScoped<ModuleSearchService>();
 
 // ================= CORS =================
+var allowedOriginsCsv = builder.Configuration["Cors:AllowedOriginsCsv"];
+
+var allowedOrigins = !string.IsNullOrWhiteSpace(allowedOriginsCsv)
+    ? allowedOriginsCsv
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+    : builder.Configuration
+        .GetSection("Cors:AllowedOrigins")
+        .Get<string[]>()?
+        .Where(origin => !string.IsNullOrWhiteSpace(origin))
+        .ToArray()
+        ?? new[]
+        {
+            "http://localhost:8080",
+            "http://localhost:5173",
+            "http://localhost:5174"
+        };
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowConfiguredOrigins", policy =>
     {
         policy
-            .WithOrigins(
-                "http://localhost:5173",
-                "http://localhost:5174"
-            )
-            .WithHeaders(
-                "Content-Type",
-                "Authorization",
-                "ngrok-skip-browser-warning"
-            )
+            .WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
     });
+});
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedHost |
+        ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
 });
 
 // ================= JWT =================
@@ -132,12 +153,13 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
 app.UseStaticFiles();
 
 app.UseRouting(); // Required for endpoint routing
 
 // Enable CORS
-app.UseCors("AllowAll");
+app.UseCors("AllowConfiguredOrigins");
 
 app.UseAuthentication();
 app.UseAuthorization();

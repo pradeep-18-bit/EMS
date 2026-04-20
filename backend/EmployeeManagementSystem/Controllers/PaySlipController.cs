@@ -9,7 +9,7 @@ namespace EmployeeManagementSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [EnableCors("AllowAll")]
+    [EnableCors("AllowConfiguredOrigins")]
     public class PaySlipController : ControllerBase
     {
         private readonly IPaySlipService _service;

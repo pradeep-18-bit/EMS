@@ -7,7 +7,7 @@ namespace EmployeeManagementSystem.Controllers
 {
     [Route("api/manual-payslip")]
     [ApiController]
-    [EnableCors("AllowAll")]
+    [EnableCors("AllowConfiguredOrigins")]
     public class ManualPaySlipController : ControllerBase
     {
         private readonly IManualPayslipService _service;
