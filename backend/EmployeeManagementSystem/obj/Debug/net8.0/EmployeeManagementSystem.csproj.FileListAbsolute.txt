@@ -942,3 +942,9 @@ C:\Users\Pradeep\EMS\backend\EmployeeManagementSystem\obj\Debug\net8.0\refint\Em
 C:\Users\Pradeep\EMS\backend\EmployeeManagementSystem\obj\Debug\net8.0\EmployeeManagementSystem.pdb
 C:\Users\Pradeep\EMS\backend\EmployeeManagementSystem\obj\Debug\net8.0\EmployeeManagementSystem.genruntimeconfig.cache
 C:\Users\Pradeep\EMS\backend\EmployeeManagementSystem\obj\Debug\net8.0\ref\EmployeeManagementSystem.dll
+C:\Users\Pradeep\EMS\backend\EmployeeManagementSystem\bin\Debug\net8.0\appsettings.Production.json
+C:\Users\Pradeep\EMS\backend\EmployeeManagementSystem\bin\Debug\net8.0\Templates\ExperienceOfferLetterTemplate.docx
+C:\Users\Pradeep\EMS\backend\EmployeeManagementSystem\bin\Debug\net8.0\Templates\OfferLetterTemplates.docx
+C:\Users\Pradeep\EMS\backend\EmployeeManagementSystem\bin\Debug\net8.0\Templates\PaySlip.xlsx
+C:\Users\Pradeep\EMS\backend\EmployeeManagementSystem\bin\Debug\net8.0\Templates\PaySlipTemplate 1 (1).docx
+C:\Users\Pradeep\EMS\backend\EmployeeManagementSystem\bin\Debug\net8.0\Templates\Payslip_P259.docx
