@@ -11,6 +11,8 @@ services:
         BUILD_CONFIGURATION: ${BACKEND_BUILD_CONFIGURATION:-Release}
     env_file:
       - ./.env
+    environment:
+      Cors__AllowedOriginsCsv: "${CORS_ALLOWED_ORIGINS:-http://localhost:8080,http://localhost:5173,http://localhost:3000,http://13.201.224.149:8080}"
     ports:
       - "${BACKEND_PORT:-5007}:8080"
     restart: unless-stopped

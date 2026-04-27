@@ -49,26 +49,37 @@ builder.Services.AddScoped<ExperienceOfferLetterService>();
 builder.Services.AddScoped<ModuleSearchService>();
 
 // ================= CORS =================
+const string CorsPolicyName = "AllowConfiguredOrigins";
+
 var allowedOriginsCsv = builder.Configuration["Cors:AllowedOriginsCsv"];
+var configuredOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>();
 
 var allowedOrigins = !string.IsNullOrWhiteSpace(allowedOriginsCsv)
-    ? allowedOriginsCsv
-        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-    : builder.Configuration
-        .GetSection("Cors:AllowedOrigins")
-        .Get<string[]>()?
-        .Where(origin => !string.IsNullOrWhiteSpace(origin))
-        .ToArray()
-        ?? new[]
-        {
-            "http://localhost:8080",
-            "http://localhost:5173",
-            "http://localhost:5174"
-        };
+    ? allowedOriginsCsv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+    : configuredOrigins ?? Array.Empty<string>();
+
+allowedOrigins = allowedOrigins
+    .Where(origin => !string.IsNullOrWhiteSpace(origin))
+    .Select(origin => origin.Trim().TrimEnd('/'))
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToArray();
+
+if (allowedOrigins.Length == 0)
+{
+    allowedOrigins =
+    [
+        "http://localhost:8080",
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://13.201.224.149:8080"
+    ];
+}
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowConfiguredOrigins", policy =>
+    options.AddPolicy(CorsPolicyName, policy =>
     {
         policy
             .WithOrigins(allowedOrigins)
@@ -159,7 +170,7 @@ app.UseStaticFiles();
 app.UseRouting(); // Required for endpoint routing
 
 // Enable CORS
-app.UseCors("AllowConfiguredOrigins");
+app.UseCors(CorsPolicyName);
 
 app.UseAuthentication();
 app.UseAuthorization();
