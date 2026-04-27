@@ -110,6 +110,20 @@ namespace EmployeeManagementSystem.Services
             string monthYear = $"{month.ToUpper()} {year}";
 
             //--------------------------------
+            // DUPLICATE CHECK
+            //--------------------------------
+            var exists = await _context.PaySlips
+                .AnyAsync(p => p.EmployeeId == employee.Employee_Id
+                            && p.Month == month
+                            && p.Year == year);
+
+            if (exists)
+            {
+                Console.WriteLine($"Already exists: {employee.Employee_Id} - {month} {year}");
+                return "Skipped";
+            }
+
+            //--------------------------------
             // TEMPLATE PATH
             //--------------------------------
             var templatePath = Path.Combine(
@@ -117,17 +131,15 @@ namespace EmployeeManagementSystem.Services
                 "Templates",
                 "PayslipTemplate 1 (1).docx");
 
-            var outputFolder = Path.Combine(
-                Directory.GetCurrentDirectory(),
-                "GeneratedPayslips");
-
-            if (!Directory.Exists(outputFolder))
-                Directory.CreateDirectory(outputFolder);
+            GeneratedFileStorage.EnsureFolder(GeneratedFileStorage.PayslipsFolder);
 
             var fileName =
                 $"Payslip_{employee.Employee_Id}_{employee.Name}_{DateTime.Now:yyyyMMddHHmmss}.docx";
 
-            var outputPath = Path.Combine(outputFolder, fileName);
+            var relativeDocxPath = GeneratedFileStorage.BuildRelativePath(
+                GeneratedFileStorage.PayslipsFolder,
+                fileName);
+            var outputPath = GeneratedFileStorage.GetFullPath(relativeDocxPath);
 
             File.Copy(templatePath, outputPath, true);
 
@@ -187,7 +199,11 @@ namespace EmployeeManagementSystem.Services
             //--------------------------------
             // DOCX → PDF
             //--------------------------------
-            var pdfPath = outputPath.Replace(".docx", ".pdf");
+            var pdfFileName = Path.ChangeExtension(Path.GetFileName(outputPath), ".pdf");
+            var relativePdfPath = GeneratedFileStorage.BuildRelativePath(
+                GeneratedFileStorage.PayslipsFolder,
+                pdfFileName);
+            var pdfPath = GeneratedFileStorage.GetFullPath(relativePdfPath);
 
             ConvertDocxToPdf(outputPath, pdfPath);
 
@@ -199,20 +215,6 @@ namespace EmployeeManagementSystem.Services
             //--------------------------------
             // SAVE TO DATABASE
             //--------------------------------
-            //--------------------------------
-            // SAVE TO DATABASE (WITH DUPLICATE CHECK)
-            //--------------------------------
-            var exists = await _context.PaySlips
-                .AnyAsync(p => p.EmployeeId == employee.Employee_Id
-                            && p.Month == month
-                            && p.Year == year);
-
-            if (exists)
-            {
-                Console.WriteLine($"Already exists: {employee.Employee_Id} - {month} {year}");
-                return "Skipped";
-            }
-
             var payslip = new PaySlip
             {
                 EmployeeId = employee.Employee_Id,
@@ -223,14 +225,14 @@ namespace EmployeeManagementSystem.Services
                 NetSalary = netSalary,
                 TotalDeductions = totalDeductions,
                 OtherDeductions = OtherDeductions,
-                FilePath = pdfPath,
+                FilePath = relativePdfPath,
                 Generated_On = DateTime.Now
             };
 
             _context.PaySlips.Add(payslip);
             await _context.SaveChangesAsync();
 
-            return pdfPath;
+            return relativePdfPath;
         }
 
         //--------------------------------

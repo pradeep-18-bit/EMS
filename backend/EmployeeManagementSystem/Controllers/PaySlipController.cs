@@ -1,4 +1,5 @@
 ﻿using EmployeeManagementSystem.Data;
+using EmployeeManagementSystem.Helpers;
 using EmployeeManagementSystem.Interfaces;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -50,22 +51,37 @@ namespace EmployeeManagementSystem.Controllers
         [HttpGet("recent")]
         public async Task<IActionResult> GetRecent()
         {
-            var data = await _service.GetRecentPayslips();
-            return Ok(data);
+            var payslips = await _context.PaySlips
+                .AsNoTracking()
+                .OrderByDescending(x => x.Id)
+                .ToListAsync();
+
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+
+            var result = payslips.Select(p => new
+            {
+                p.Id,
+                p.EmployeeId,
+                p.CTC,
+                p.Month,
+                p.Year,
+                p.Generated_On,
+                p.GrossSalary,
+                p.TotalDeductions,
+                p.NetSalary,
+                p.OtherDeductions,
+                PreviewUrl = $"{baseUrl}/api/payslip/preview/{p.Id}",
+                DownloadUrl = $"{baseUrl}/api/payslip/download/{p.Id}"
+            });
+
+            return Ok(result);
         }
         //--------------------------------
         // PREVIEW PAYSLIP (INLINE VIEW)
         [HttpGet("preview/{id}")]
         public async Task<IActionResult> Preview(int id)
         {
-            var payslip = await _context.PaySlips.FindAsync(id);
-
-            if (payslip == null || !System.IO.File.Exists(payslip.FilePath))
-                return NotFound("File not found");
-
-            var fileBytes = System.IO.File.ReadAllBytes(payslip.FilePath);
-
-            return File(fileBytes, "application/pdf"); // inline preview
+            return await GetPayslipFile(id, download: false);
         }
         //--------------------------------
         // DOWNLOAD PAYSLIP
@@ -73,14 +89,7 @@ namespace EmployeeManagementSystem.Controllers
         [HttpGet("download/{id}")]
         public async Task<IActionResult> Download(int id)
         {
-            var payslip = await _context.PaySlips.FindAsync(id);
-
-            if (payslip == null || !System.IO.File.Exists(payslip.FilePath))
-                return NotFound("File not found");
-
-            var fileBytes = System.IO.File.ReadAllBytes(payslip.FilePath);
-
-            return File(fileBytes, "application/pdf", Path.GetFileName(payslip.FilePath));
+            return await GetPayslipFile(id, download: true);
         }
         [HttpGet("my")]
         public async Task<IActionResult> GetMyPayslips()
@@ -119,6 +128,37 @@ namespace EmployeeManagementSystem.Controllers
             });
 
             return Ok(result);
+        }
+
+        private async Task<IActionResult> GetPayslipFile(int id, bool download)
+        {
+            var payslip = await _context.PaySlips
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (payslip == null)
+                return NotFound("Payslip not found");
+
+            string fullPath;
+
+            try
+            {
+                fullPath = GeneratedFileStorage.GetFullPath(payslip.FilePath ?? "");
+            }
+            catch (InvalidOperationException)
+            {
+                return NotFound("Invalid payslip file path");
+            }
+
+            if (!System.IO.File.Exists(fullPath))
+                return NotFound("File not found");
+
+            var fileBytes = await System.IO.File.ReadAllBytesAsync(fullPath);
+            var fileName = Path.GetFileName(fullPath);
+
+            return download
+                ? File(fileBytes, "application/pdf", fileName)
+                : File(fileBytes, "application/pdf");
         }
     }
 }

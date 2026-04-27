@@ -28,15 +28,13 @@ namespace EmployeeManagementSystem.Services
                 "Templates",
                 "OfferLetterTemplates.docx");
 
-            var outputFolder = Path.Combine(
-                Directory.GetCurrentDirectory(),
-                "GeneratedLetters");
-
-            if (!Directory.Exists(outputFolder))
-                Directory.CreateDirectory(outputFolder);
+            GeneratedFileStorage.EnsureFolder(GeneratedFileStorage.LettersFolder);
 
             var fileName = $"OfferLetter_{dto.Candidate_Name}_{DateTime.Now:yyyyMMddHHmmss}.docx";
-            var outputPath = Path.Combine(outputFolder, fileName);
+            var relativeDocxPath = GeneratedFileStorage.BuildRelativePath(
+                GeneratedFileStorage.LettersFolder,
+                fileName);
+            var outputPath = GeneratedFileStorage.GetFullPath(relativeDocxPath);
 
             File.Copy(templatePath, outputPath, true);
 
@@ -210,7 +208,11 @@ namespace EmployeeManagementSystem.Services
             // Convert DOCX to PDF
             // =============================
 
-            var pdfPath = outputPath.Replace(".docx", ".pdf");
+            var pdfFileName = Path.ChangeExtension(Path.GetFileName(outputPath), ".pdf");
+            var relativePdfPath = GeneratedFileStorage.BuildRelativePath(
+                GeneratedFileStorage.LettersFolder,
+                pdfFileName);
+            var pdfPath = GeneratedFileStorage.GetFullPath(relativePdfPath);
 
             LibreOfficeHelper.ConvertToPdf(outputPath, pdfPath);
 
@@ -240,7 +242,7 @@ namespace EmployeeManagementSystem.Services
                 Joining_Date = dto.Joining_Date,
                 CTC_Annual = dto.CTC_Annual,
                 Generated_On = DateTime.UtcNow,
-                File_Path = pdfPath
+                File_Path = relativePdfPath
             };
 
             _context.OfferLetters.Add(offerLetter);

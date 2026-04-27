@@ -1,5 +1,6 @@
 ﻿using EmployeeManagementSystem.Data;
 using EmployeeManagementSystem.DTOs;
+using EmployeeManagementSystem.Helpers;
 using EmployeeManagementSystem.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -92,14 +93,25 @@ namespace EmployeeManagementSystem.Controllers
             if (record == null)
                 return NotFound("Offer letter not found.");
 
-            if (!System.IO.File.Exists(record.File_Path))
+            string fullPath;
+
+            try
+            {
+                fullPath = GeneratedFileStorage.GetFullPath(record.File_Path ?? "");
+            }
+            catch (InvalidOperationException)
+            {
+                return NotFound("Invalid offer letter file path.");
+            }
+
+            if (!System.IO.File.Exists(fullPath))
                 return NotFound("File not found on server.");
 
-            var bytes = await System.IO.File.ReadAllBytesAsync(record.File_Path);
+            var bytes = await System.IO.File.ReadAllBytesAsync(fullPath);
 
             return File(bytes,
                 "application/pdf",
-                Path.GetFileName(record.File_Path));
+                Path.GetFileName(fullPath));
         }
     }
 }
