@@ -72,8 +72,7 @@ if (allowedOrigins.Length == 0)
     [
         "http://localhost:8080",
         "http://localhost:5173",
-        "http://localhost:3000",
-        "http://13.201.224.149:8080"
+        "http://localhost:3000"
     ];
 }
 

@@ -62,6 +62,17 @@ namespace EmployeeManagementSystem.Controllers
             if (await _context.Users.AnyAsync(x => x.Email == dto.Email))
                 return BadRequest("Email already exists");
 
+            var employeeExists = await _context.Employees
+                .AnyAsync(e => e.Email == dto.Email);
+
+            if (!employeeExists)
+            {
+                return NotFound(new
+                {
+                    message = "Email does not exist in the employee list"
+                });
+            }
+
             // 🔹 Fetch the default role (Employee)
             var defaultRole = await _context.Roles
                 .FirstOrDefaultAsync(r => r.Name.ToLower() == "employee");

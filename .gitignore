@@ -1,4 +1,40 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
 
 # .NET build output
-[Bb]in/
-[Oo]bj/
+**/[Bb]in/
+**/[Oo]bj/
+**/.vs/
+TestResults/
+*.user
+*.suo
+*.rsuser
+
+# Frontend build output
+**/node_modules/
+**/dist/
+**/dist-ssr/
+coverage/
+
+# Runtime-generated application files
+**/GeneratedLetters/
+**/GeneratedPayslips/
+**/wwwroot/uploads/
+
+# Local editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs and caches
+*.log
+*.cache
+*.tmp
+
+# Accidentally extracted archive folders
+EMS (11)/
+EMS (11) 1/
+EmployeeManagementSystem (18)/
